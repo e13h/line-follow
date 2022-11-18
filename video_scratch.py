@@ -17,7 +17,6 @@ if __name__ == '__main__':
     cap = cv2.VideoCapture(filename)
     while cap.isOpened():
         ret, frame = cap.read()
-        print(type(frame))
         if not ret:
             print("Can't receive frame (stream end?). Exiting...")
             break
