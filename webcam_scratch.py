@@ -21,7 +21,8 @@ if __name__ == "__main__":
         upper_yellow_hls = np.uint8([35, 255, 200])
         lane_yellow_mask = cv2.inRange(lane_image_2,lower_yellow_hls,upper_yellow_hls)
         img_canny = toolbox.make_canny(lane_yellow_mask)
-        img_masked = toolbox.region_of_interest(img_canny)
+        roi = toolbox.create_roi(frame)
+        img_masked = toolbox.mask_roi(img_canny, roi)
         # img_masked = img_canny
         hough_lines = cv2.HoughLinesP(img_masked, rho=1, theta=np.pi/180, threshold=50, minLineLength=40, maxLineGap=5)
         # img_lines = toolbox.draw_lines(frame, hough_lines)
@@ -29,7 +30,7 @@ if __name__ == "__main__":
         if steering_line is None:
             img_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             img_canny = toolbox.make_canny(img_gray)
-            img_masked = toolbox.region_of_interest(img_canny)
+            img_masked = toolbox.mask_roi(img_canny, roi)
             hough_lines = cv2.HoughLinesP(img_masked, rho=1, theta=np.pi/180, threshold=50, minLineLength=40, maxLineGap=5)
             lane_lines, steering_line = toolbox.compute_average_lines(hough_lines, frame.shape)
 

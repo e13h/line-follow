@@ -9,14 +9,19 @@ def make_canny(frame, thresh_low = 100, thresh_high = 200):
     img_canny = cv2.Canny(img_blur, thresh_low, thresh_high)
     return img_canny
 
-def region_of_interest(img):
+def create_roi(img: np.ndarray) -> np.ndarray:
+    img_height, img_width = img.shape[0], img.shape[1]
     bounds = np.array([[
         [500, 650],
         [1500, 650],
         [3000, 1200],
         [0, 1200]]], dtype=np.int32)
-    mask=np.zeros_like(img)
-    cv2.fillPoly(mask, bounds, [255,255,255])
+    return bounds
+
+def mask_roi(img: np.ndarray, roi: np.ndarray) -> np.ndarray:
+    BLACK = (255, 255, 255)
+    mask = np.zeros_like(img)
+    cv2.fillPoly(mask, roi, color=BLACK)
     # return mask
     masked_image = cv2.bitwise_and(img, mask) 
     return masked_image
@@ -31,6 +36,11 @@ def draw_lines(img: np.ndarray, lines: np.ndarray, color: tuple = (0, 0, 255), t
         x1, y1, x2, y2 = points[0]
         cv2.line(mask_lines, (x1, y1), (x2, y2), color=color, thickness=thickness)
     return mask_lines
+
+def draw_roi(img: np.ndarray, roi: np.ndarray, color: tuple = (0, 0, 255)) -> np.ndarray:
+    off_by_1_indices = roi[:, list(range(1, roi.shape[1])) + [0]]
+    roi_lines = np.concatenate((roi, off_by_1_indices), axis=2)
+    return draw_lines(img, roi_lines.reshape(-1, 1, 4), color=color)
 
 def show_image(name, img):
     cv2.imshow(name,img)
@@ -113,19 +123,25 @@ def steering_command(steering_line: np.ndarray) -> float:
     return (x2 - x1) * TUNING_FACTOR
 
 def run_cv2_pipeline(frame: np.ndarray) -> np.ndarray:
-    RED = (0, 0, 255)  # BGR
+    # Colors are in BGR order
+    RED = (0, 0, 255)
     GREEN = (0, 255, 0)
+    BLUE = (255, 0, 0)
+    YELLOW = (0, 234, 255)
 
     img_canny = make_canny(frame)
-    # img_masked = region_of_interest(img_canny)
-    img_masked = img_canny
+    roi = create_roi(frame)
+    img_masked = mask_roi(img_canny, roi)
+    # return img_masked
     hough_lines = cv2.HoughLinesP(img_masked, rho=1, theta=np.pi/180, threshold=50, minLineLength=40, maxLineGap=5)
-    # img_lines = draw_lines(frame, hough_lines)
+    img_lines = draw_lines(frame, hough_lines, color=BLUE)
     # return img_lines
     lane_lines, steering_line = compute_average_lines(hough_lines, frame.shape)
     img_lanes = draw_lines(frame, lane_lines, color=RED)
     img_steering = draw_lines(frame, steering_line, color=GREEN)
+    img_roi = draw_roi(frame, roi, color=YELLOW)
     print(steering_command(steering_line))
 
-    output = cv2.addWeighted(frame, 0.8, img_lanes + img_steering, 1, 1)
+    layers = img_lines + img_lanes + img_steering + img_roi
+    output = cv2.addWeighted(frame, 0.8, layers, 1, 1)
     return output
