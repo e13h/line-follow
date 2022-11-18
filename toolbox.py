@@ -9,13 +9,13 @@ def make_canny(frame, thresh_low = 100, thresh_high = 200):
     img_canny = cv2.Canny(img_blur, thresh_low, thresh_high)
     return img_canny
 
-def create_roi(img: np.ndarray) -> np.ndarray:
+def create_roi(img: np.ndarray, height_factor: float = 0.6, width_factor: float = 0.75) -> np.ndarray:
     img_height, img_width = img.shape[0], img.shape[1]
     bounds = np.array([[
-        [500, 650],
-        [1500, 650],
-        [3000, 1200],
-        [0, 1200]]], dtype=np.int32)
+        [0, img_height],
+        [img_width, img_height],
+        [width_factor * img_width, height_factor * img_height],
+        [(1-width_factor) * img_width, height_factor * img_height]]], dtype=np.int32)
     return bounds
 
 def mask_roi(img: np.ndarray, roi: np.ndarray) -> np.ndarray:
