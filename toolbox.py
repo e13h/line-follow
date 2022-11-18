@@ -111,3 +111,21 @@ def steering_command(steering_line: np.ndarray) -> float:
         return 0.0
     x1, _, x2, _ = steering_line.flatten()
     return (x2 - x1) * TUNING_FACTOR
+
+def run_cv2_pipeline(frame: np.ndarray) -> np.ndarray:
+    RED = (0, 0, 255)  # BGR
+    GREEN = (0, 255, 0)
+
+    img_canny = make_canny(frame)
+    # img_masked = region_of_interest(img_canny)
+    img_masked = img_canny
+    hough_lines = cv2.HoughLinesP(img_masked, rho=1, theta=np.pi/180, threshold=50, minLineLength=40, maxLineGap=5)
+    # img_lines = draw_lines(frame, hough_lines)
+    # return img_lines
+    lane_lines, steering_line = compute_average_lines(hough_lines, frame.shape)
+    img_lanes = draw_lines(frame, lane_lines, color=RED)
+    img_steering = draw_lines(frame, steering_line, color=GREEN)
+    print(steering_command(steering_line))
+
+    output = cv2.addWeighted(frame, 0.8, img_lanes + img_steering, 1, 1)
+    return output
