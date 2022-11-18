@@ -4,17 +4,17 @@ import math
 
 
 def make_canny(frame, thresh_low = 100, thresh_high = 200):
-    img_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    img_blur = cv2.GaussianBlur(img_gray, (5, 5), 0)
+    # img_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    img_blur = cv2.GaussianBlur(frame, (5, 5), 0)
     img_canny = cv2.Canny(img_blur, thresh_low, thresh_high)
     return img_canny
 
 def region_of_interest(img):
     bounds = np.array([[
-        [img.shape[1] / 4, 3 * img.shape[0] / 4],
-        [3 * img.shape[1] / 4, 3 * img.shape[0] / 4],
-        [3 * img.shape[1] / 4, img.shape[0] / 4],
-        [img.shape[1] / 4, img.shape[0] / 4]]], dtype=np.int32)
+        [500, 650],
+        [1500, 650],
+        [3000, 1200],
+        [0, 1200]]], dtype=np.int32)
     mask=np.zeros_like(img)
     cv2.fillPoly(mask, bounds, [255,255,255])
     # return mask
@@ -65,7 +65,7 @@ def compute_average_lines(lines, img_shape: tuple):
         length = np.sqrt((y2 - y1)**2 + (x2 - x1)**2)
         if slope < 0:
             left_lane_lines.append([slope,intercept])
-            left_weights.append(length)         
+            left_weights.append(length)   
         else:
             right_lane_lines.append([slope,intercept])
             right_weights.append(length)

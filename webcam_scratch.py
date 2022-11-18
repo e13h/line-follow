@@ -7,7 +7,7 @@ RED = (0, 0, 255)  # BGR
 GREEN = (0, 255, 0)
 
 if __name__ == "__main__":
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture('Curve.mp4')
     print(cap.isOpened())
     while True:
         ret, frame = cap.read()
@@ -15,9 +15,10 @@ if __name__ == "__main__":
             print("Can't receive frame. Exiting...")
             break
         # img_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        img_canny = toolbox.make_canny(frame)
-        # img_masked = toolbox.region_of_interest(img_canny)
-        img_masked = img_canny
+        img_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        img_canny = toolbox.make_canny(img_gray)
+        img_masked = toolbox.region_of_interest(img_canny)
+        # img_masked = img_canny
         hough_lines = cv2.HoughLinesP(img_masked, rho=1, theta=np.pi/180, threshold=50, minLineLength=40, maxLineGap=5)
         # img_lines = toolbox.draw_lines(frame, hough_lines)
         lane_lines, steering_line = toolbox.compute_average_lines(hough_lines, frame.shape)
