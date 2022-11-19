@@ -3,6 +3,14 @@ import cv2
 import math
 
 
+# Colors are in BGR order
+RED = (0, 0, 255)
+GREEN = (0, 255, 0)
+BLUE = (255, 0, 0)
+YELLOW = (0, 234, 255)
+BLACK = (255, 255, 255)
+
+
 def make_canny(frame, thresh_low = 100, thresh_high = 200):
     # img_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     img_blur = cv2.GaussianBlur(frame, (5, 5), 0)
@@ -19,7 +27,6 @@ def create_roi(img: np.ndarray, height_factor: float = 0.6, width_factor: float 
     return bounds
 
 def mask_roi(img: np.ndarray, roi: np.ndarray) -> np.ndarray:
-    BLACK = (255, 255, 255)
     mask = np.zeros_like(img)
     cv2.fillPoly(mask, roi, color=BLACK)
     # return mask
@@ -123,12 +130,6 @@ def steering_command(steering_line: np.ndarray) -> float:
     return (x2 - x1) * TUNING_FACTOR
 
 def run_lane_detection_pipeline(frame: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    # Colors are in BGR order
-    RED = (0, 0, 255)
-    GREEN = (0, 255, 0)
-    BLUE = (255, 0, 0)
-    YELLOW = (0, 234, 255)
-
     img_canny = make_canny(frame)
     roi = create_roi(frame)
     img_masked = mask_roi(img_canny, roi)
@@ -144,5 +145,21 @@ def run_lane_detection_pipeline(frame: np.ndarray) -> tuple[np.ndarray, np.ndarr
     overlay = img_lines + img_lanes + img_steering + img_roi
     return overlay, steering_line
 
-def run_yellow_segmentation_pipeline():
-    pass
+def run_yellow_segmentation_pipeline(frame: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    lane_image_2 = np.copy(frame)
+    lane_image_2 = cv2.cvtColor(lane_image_2, cv2.COLOR_BGR2HLS)
+    LOWER_YELLOW_HLS = np.uint8([25, 70, 50])
+    UPPER_YELLOW_HLS = np.uint8([35, 255, 200])
+    lane_yellow_mask = cv2.inRange(lane_image_2, LOWER_YELLOW_HLS, UPPER_YELLOW_HLS)
+    
+    # return run_lane_detection_pipeline(lane_yellow_mask)
+    img_canny = make_canny(lane_yellow_mask)
+    roi = create_roi(frame)
+    img_masked = mask_roi(img_canny, roi)
+    hough_lines = cv2.HoughLinesP(img_masked, rho=1, theta=np.pi/180, threshold=50, minLineLength=40, maxLineGap=5)
+    img_lines = draw_lines(frame, hough_lines)
+    lane_lines, steering_line = compute_average_lines(hough_lines, frame.shape)
+    img_lanes = draw_lines(frame, lane_lines, color=RED)
+    img_steering = draw_lines(frame, steering_line, color=GREEN)
+    overlay = img_lanes + img_steering + img_lines
+    return overlay, steering_line
