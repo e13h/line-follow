@@ -156,7 +156,7 @@ def run_yellow_segmentation_pipeline(frame: np.ndarray) -> tuple[np.ndarray, np.
     roi = create_roi(frame)
     img_masked = mask_roi(img_canny, roi)
     hough_lines = cv2.HoughLinesP(img_masked, rho=1, theta=np.pi/180, threshold=50, minLineLength=40, maxLineGap=5)
-    img_lines = draw_lines(frame, hough_lines)
+    img_lines = draw_lines(frame, hough_lines, color=BLUE)
     lane_lines, steering_line = compute_average_lines(hough_lines, frame.shape)
     img_lanes = draw_lines(frame, lane_lines, color=RED)
     img_steering = draw_lines(frame, steering_line, color=GREEN)
