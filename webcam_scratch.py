@@ -4,7 +4,7 @@ import toolbox
 
 
 if __name__ == "__main__":
-    cap = cv2.VideoCapture('slow_raw.mp4')
+    cap = cv2.VideoCapture(0)
     print(cap.isOpened())
     while True:
         ret, frame = cap.read()
