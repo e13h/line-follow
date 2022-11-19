@@ -87,8 +87,8 @@ def compute_average_lines(lines, img_shape: tuple):
             right_lane_lines.append([slope,intercept])
             right_weights.append(length)
 
-    left_line = define_line(left_lane_lines, img_shape[0])#, left_weights)
-    right_line = define_line(right_lane_lines, img_shape[0])#, right_weights)
+    left_line = define_line(left_lane_lines, img_shape[0], left_weights)
+    right_line = define_line(right_lane_lines, img_shape[0], right_weights)
 
     if left_line is not None and right_line is not None:
         return np.array([[left_line], [right_line]]), make_steering_line(left_line, right_line, img_shape)
