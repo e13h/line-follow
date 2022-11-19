@@ -122,7 +122,7 @@ def steering_command(steering_line: np.ndarray) -> float:
     x1, _, x2, _ = steering_line.flatten()
     return (x2 - x1) * TUNING_FACTOR
 
-def run_cv2_pipeline(frame: np.ndarray) -> np.ndarray:
+def run_lane_detection_pipeline(frame: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     # Colors are in BGR order
     RED = (0, 0, 255)
     GREEN = (0, 255, 0)
@@ -140,8 +140,9 @@ def run_cv2_pipeline(frame: np.ndarray) -> np.ndarray:
     img_lanes = draw_lines(frame, lane_lines, color=RED)
     img_steering = draw_lines(frame, steering_line, color=GREEN)
     img_roi = draw_roi(frame, roi, color=YELLOW)
-    print(steering_command(steering_line))
 
-    layers = img_lines + img_lanes + img_steering + img_roi
-    output = cv2.addWeighted(frame, 0.8, layers, 1, 1)
-    return output
+    overlay = img_lines + img_lanes + img_steering + img_roi
+    return overlay, steering_line
+
+def run_yellow_segmentation_pipeline():
+    pass

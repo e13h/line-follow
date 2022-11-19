@@ -27,18 +27,14 @@ if __name__ == "__main__":
         hough_lines = cv2.HoughLinesP(img_masked, rho=1, theta=np.pi/180, threshold=50, minLineLength=40, maxLineGap=5)
         # img_lines = toolbox.draw_lines(frame, hough_lines)
         lane_lines, steering_line = toolbox.compute_average_lines(hough_lines, frame.shape)
-        if steering_line is None:
-            img_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            img_canny = toolbox.make_canny(img_gray)
-            img_masked = toolbox.mask_roi(img_canny, roi)
-            hough_lines = cv2.HoughLinesP(img_masked, rho=1, theta=np.pi/180, threshold=50, minLineLength=40, maxLineGap=5)
-            lane_lines, steering_line = toolbox.compute_average_lines(hough_lines, frame.shape)
-
         img_lanes = toolbox.draw_lines(frame, lane_lines, color=RED)
         img_steering = toolbox.draw_lines(frame, steering_line, color=GREEN)
-        print(toolbox.steering_command(steering_line))
+        overlay = img_lanes + img_steering
+        if steering_line is None:
+            overlay, steering_line = toolbox.run_lane_detection_pipeline(frame)
 
-        output = cv2.addWeighted(frame, 0.8, img_lanes + img_steering, 1, 1)
+        print(toolbox.steering_command(steering_line))
+        output = cv2.addWeighted(frame, 0.8, overlay, 1, 1)
         cv2.imshow('frame', output)
         if cv2.waitKey(1) == ord('q'):
             break

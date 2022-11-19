@@ -20,7 +20,9 @@ if __name__ == '__main__':
         if not ret:
             print("Can't receive frame (stream end?). Exiting...")
             break
-        output = toolbox.run_cv2_pipeline(frame)
+        overlay, steering_line = toolbox.run_lane_detection_pipeline(frame)
+        print(toolbox.steering_command(steering_line))
+        output = cv2.addWeighted(frame, 0.8, overlay, 1, 1)
         cv2.imshow('frame', output)
         if cv2.waitKey(1) == ord('q'):
             break
