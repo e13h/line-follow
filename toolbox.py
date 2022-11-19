@@ -151,8 +151,7 @@ def run_yellow_segmentation_pipeline(frame: np.ndarray) -> tuple[np.ndarray, np.
     LOWER_YELLOW_HLS = np.uint8([25, 70, 50])
     UPPER_YELLOW_HLS = np.uint8([35, 255, 200])
     lane_yellow_mask = cv2.inRange(lane_image_2, LOWER_YELLOW_HLS, UPPER_YELLOW_HLS)
-    
-    # return run_lane_detection_pipeline(lane_yellow_mask)
+
     img_canny = make_canny(lane_yellow_mask)
     roi = create_roi(frame)
     img_masked = mask_roi(img_canny, roi)
@@ -161,5 +160,9 @@ def run_yellow_segmentation_pipeline(frame: np.ndarray) -> tuple[np.ndarray, np.
     lane_lines, steering_line = compute_average_lines(hough_lines, frame.shape)
     img_lanes = draw_lines(frame, lane_lines, color=RED)
     img_steering = draw_lines(frame, steering_line, color=GREEN)
-    overlay = img_lanes + img_steering + img_lines
+    img_roi = draw_roi(frame, roi, color=YELLOW)
+    
+    indicator_mask = np.zeros_like(frame)
+    cv2.circle(indicator_mask, center=(75, 75), radius=15, color=YELLOW, thickness=30)
+    overlay = img_lines + img_lanes + img_steering + img_roi + indicator_mask
     return overlay, steering_line
