@@ -140,6 +140,8 @@ def run_lane_detection_pipeline(frame: np.ndarray):
     # return img_lines
     lane_lines, steering_line = compute_average_lines(hough_lines, frame.shape)
     img_lanes = draw_lines(frame, lane_lines, color=RED)
+    if steering_line is None:
+        steering_line = make_steering_line(None, [0, 0, 0, 0], frame.shape)
     img_steering = draw_lines(frame, steering_line, color=GREEN)
     img_roi = draw_roi(frame, roi, color=YELLOW)
 
