@@ -123,11 +123,11 @@ def make_steering_line(left_line: list, right_line: list, img_shape: tuple, line
     return np.array([[[x1, y1, x2, y2]]])
 
 def steering_command(steering_line: np.ndarray, img_width: int) -> float:
-    TUNING_FACTOR = 1.0
+    TUNING_FACTOR = 0.5
     if steering_line is None:
         return 0.0
     x1, _, x2, _ = steering_line.flatten()
-    return ((x2 - x1) / (img_width / 2)) * TUNING_FACTOR
+    return np.clip(((x2 - x1) / (img_width / 2)) * TUNING_FACTOR, -1.0, 1.0)
 
 def run_lane_detection_pipeline(frame: np.ndarray):
     img_canny = make_canny(frame)
