@@ -23,7 +23,7 @@ if __name__ == '__main__':
         overlay, steering_line = toolbox.run_yellow_segmentation_pipeline(frame)
         if steering_line is None:
             overlay, steering_line = toolbox.run_lane_detection_pipeline(frame)
-        print(toolbox.steering_command(steering_line))
+        print(toolbox.steering_command(steering_line, frame.shape[1]))
         output = cv2.addWeighted(frame, 0.8, overlay, 1, 1)
         cv2.imshow('frame', output)
         if cv2.waitKey(1) == ord('q'):

@@ -122,14 +122,14 @@ def make_steering_line(left_line: list, right_line: list, img_shape: tuple, line
     x2 = int(x1 + average_delta_x)
     return np.array([[[x1, y1, x2, y2]]])
 
-def steering_command(steering_line: np.ndarray) -> float:
+def steering_command(steering_line: np.ndarray, img_width: int) -> float:
     TUNING_FACTOR = 1.0
     if steering_line is None:
         return 0.0
     x1, _, x2, _ = steering_line.flatten()
-    return (x2 - x1) * TUNING_FACTOR
+    return ((x2 - x1) / (img_width / 2)) * TUNING_FACTOR
 
-def run_lane_detection_pipeline(frame: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+def run_lane_detection_pipeline(frame: np.ndarray):
     img_canny = make_canny(frame)
     roi = create_roi(frame)
     img_masked = mask_roi(img_canny, roi)
@@ -145,11 +145,11 @@ def run_lane_detection_pipeline(frame: np.ndarray) -> tuple[np.ndarray, np.ndarr
     overlay = img_lines + img_lanes + img_steering + img_roi
     return overlay, steering_line
 
-def run_yellow_segmentation_pipeline(frame: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+def run_yellow_segmentation_pipeline(frame: np.ndarray):
     lane_image_2 = np.copy(frame)
     lane_image_2 = cv2.cvtColor(lane_image_2, cv2.COLOR_BGR2HLS)
-    LOWER_YELLOW_HLS = np.uint8([25, 70, 50])
-    UPPER_YELLOW_HLS = np.uint8([35, 255, 200])
+    LOWER_YELLOW_HLS = np.uint8([25, 50, 20])
+    UPPER_YELLOW_HLS = np.uint8([35, 255, 255])
     lane_yellow_mask = cv2.inRange(lane_image_2, LOWER_YELLOW_HLS, UPPER_YELLOW_HLS)
 
     img_canny = make_canny(lane_yellow_mask)

@@ -98,7 +98,7 @@ if __name__ == "__main__":
             if steering_line is None:
                 overlay, steering_line = toolbox.run_lane_detection_pipeline(frame)
 
-            steering_cmd = toolbox.steering_command(steering_line)
+            steering_cmd = toolbox.steering_command(steering_line, frame.shape[1])
             print(steering_cmd)
             vesc.run(steering_cmd, THROTTLE)  # TODO does killing the script turn off the vesc or do we need to send a shutdown signal?
 

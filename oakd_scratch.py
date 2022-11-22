@@ -15,7 +15,7 @@ if __name__ == "__main__":
     xoutRgb.setStreamName("rgb")
 
     # Properties
-    camRgb.setPreviewSize(960, 540)
+    camRgb.setPreviewSize(1920, 1080)
     camRgb.setInterleaved(False)
     camRgb.setColorOrder(dai.ColorCameraProperties.ColorOrder.RGB)
 
@@ -39,9 +39,10 @@ if __name__ == "__main__":
             if steering_line is None:
                 overlay, steering_line = toolbox.run_lane_detection_pipeline(frame)
 
-            print(toolbox.steering_command(steering_line))
+            print(toolbox.steering_command(steering_line, frame.shape[1]))
             output = cv2.addWeighted(frame, 0.8, overlay, 1, 1)
-            cv2.imshow("frame", output)
+            output_small = cv2.resize(output, (480, 270), interpolation=cv2.INTER_LINEAR)
+            cv2.imshow("frame", output_small)
             if cv2.waitKey(1) == ord('q'):
                 break
         cv2.destroyAllWindows()
