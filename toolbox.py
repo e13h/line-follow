@@ -148,8 +148,8 @@ def run_lane_detection_pipeline(frame: np.ndarray):
 def run_yellow_segmentation_pipeline(frame: np.ndarray):
     lane_image_2 = np.copy(frame)
     lane_image_2 = cv2.cvtColor(lane_image_2, cv2.COLOR_BGR2HLS)
-    LOWER_YELLOW_HLS = np.uint8([25, 50, 20])
-    UPPER_YELLOW_HLS = np.uint8([35, 255, 255])
+    LOWER_YELLOW_HLS = np.uint8([25, 70, 50])
+    UPPER_YELLOW_HLS = np.uint8([35, 255, 200])
     lane_yellow_mask = cv2.inRange(lane_image_2, LOWER_YELLOW_HLS, UPPER_YELLOW_HLS)
 
     img_canny = make_canny(lane_yellow_mask)
