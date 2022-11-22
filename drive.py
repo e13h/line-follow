@@ -103,7 +103,8 @@ if __name__ == "__main__":
             vesc.run(steering_cmd, THROTTLE)  # TODO does killing the script turn off the vesc or do we need to send a shutdown signal?
 
             output = cv2.addWeighted(frame, 0.8, overlay, 1, 1)
-            cv2.imshow("frame", output)
+            output_small = cv2.resize(output, (480, 270), interpolation=cv2.INTER_LINEAR)
+            cv2.imshow("frame", output_small)
             if cv2.waitKey(1) == ord('q'):
                 break
         cv2.destroyAllWindows()
