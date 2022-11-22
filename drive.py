@@ -72,7 +72,7 @@ class VESC:
 
 
 if __name__ == "__main__":
-    vesc = VESC('/dev/ttyACM0')
+    vesc = VESC('/dev/ttyACM0', steering_offset=0.5)
 
     pipeline = dai.Pipeline()
     camRgb = pipeline.create(dai.node.ColorCamera)

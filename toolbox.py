@@ -36,7 +36,6 @@ def mask_roi(img: np.ndarray, roi: np.ndarray) -> np.ndarray:
 def draw_lines(img: np.ndarray, lines: np.ndarray, color: tuple = (0, 0, 255), thickness: int = 2):
     mask_lines = np.zeros_like(img)
     if lines is None:
-        print('No lines to draw!')
         return mask_lines
 
     for points in lines:
@@ -80,6 +79,8 @@ def compute_average_lines(lines, img_shape: tuple):
         parameters = np.polyfit((x1, x2), (y1, y2), 1)  # implementing polyfit to identify slope and intercept
         slope, intercept = parameters
         length = np.sqrt((y2 - y1)**2 + (x2 - x1)**2)
+        if abs(slope) < 0.5:
+            continue
         if slope < 0:
             left_lane_lines.append([slope,intercept])
             left_weights.append(length)   
@@ -134,7 +135,7 @@ def run_lane_detection_pipeline(frame: np.ndarray):
     roi = create_roi(frame)
     img_masked = mask_roi(img_canny, roi)
     # return img_masked
-    hough_lines = cv2.HoughLinesP(img_masked, rho=1, theta=np.pi/180, threshold=50, minLineLength=40, maxLineGap=5)
+    hough_lines = cv2.HoughLinesP(img_masked, rho=10, theta=np.pi/180, threshold=50, minLineLength=60, maxLineGap=25)
     img_lines = draw_lines(frame, hough_lines, color=BLUE)
     # return img_lines
     lane_lines, steering_line = compute_average_lines(hough_lines, frame.shape)
@@ -155,7 +156,7 @@ def run_yellow_segmentation_pipeline(frame: np.ndarray):
     img_canny = make_canny(lane_yellow_mask)
     roi = create_roi(frame)
     img_masked = mask_roi(img_canny, roi)
-    hough_lines = cv2.HoughLinesP(img_masked, rho=1, theta=np.pi/180, threshold=50, minLineLength=40, maxLineGap=5)
+    hough_lines = cv2.HoughLinesP(img_masked, rho=10, theta=np.pi/180, threshold=50, minLineLength=60, maxLineGap=25)
     img_lines = draw_lines(frame, hough_lines, color=BLUE)
     lane_lines, steering_line = compute_average_lines(hough_lines, frame.shape)
     img_lanes = draw_lines(frame, lane_lines, color=RED)
