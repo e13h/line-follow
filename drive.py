@@ -5,7 +5,7 @@ import depthai as dai
 
 import toolbox
 
-THROTTLE = 0.0
+THROTTLE = 0.15
 
 
 class VESC:
