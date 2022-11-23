@@ -79,7 +79,7 @@ def compute_average_lines(lines, img_shape: tuple):
         parameters = np.polyfit((x1, x2), (y1, y2), 1)  # implementing polyfit to identify slope and intercept
         slope, intercept = parameters
         length = np.sqrt((y2 - y1)**2 + (x2 - x1)**2)
-        if abs(slope) < 0.5:
+        if abs(slope) < 0.2:
             continue
         if slope < 0:
             left_lane_lines.append([slope,intercept])
@@ -153,13 +153,13 @@ def run_yellow_segmentation_pipeline(frame: np.ndarray):
     lane_image_2 = cv2.cvtColor(lane_image_2, cv2.COLOR_BGR2HSV)
     LOWER_YELLOW_HLS = np.uint8([25, 70, 50])
     UPPER_YELLOW_HLS = np.uint8([35, 255, 200])
-    LOWER_YELLOW_HSV = np.uint8([25, 25, 25])
+    LOWER_YELLOW_HSV = np.uint8([25, 50, 50])
     UPPER_YELLOW_HSV = np.uint8([35, 255, 255])
     lane_yellow_mask = cv2.inRange(lane_image_2, LOWER_YELLOW_HSV, UPPER_YELLOW_HSV)
     img_canny = make_canny(lane_yellow_mask)
     roi = create_roi(frame)
     img_masked = mask_roi(img_canny, roi)
-    hough_lines = cv2.HoughLinesP(img_masked, rho=10, theta=np.pi/180, threshold=50, minLineLength=60, maxLineGap=25)
+    hough_lines = cv2.HoughLinesP(img_masked, rho=1, theta=np.pi/180, threshold=50, minLineLength=20, maxLineGap=10)
     img_lines = draw_lines(frame, hough_lines, color=BLUE)
     lane_lines, steering_line = compute_average_lines(hough_lines, frame.shape)
     img_lanes = draw_lines(frame, lane_lines, color=RED)
